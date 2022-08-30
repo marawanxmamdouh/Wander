@@ -1,6 +1,8 @@
 package dev.marawanxmamdouh.wander
 
+import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -11,9 +13,12 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import dev.marawanxmamdouh.wander.databinding.ActivityMapsBinding
 import java.util.*
+
+private val TAG = MapsActivity::class.java.simpleName
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -73,6 +78,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun setMapStyle(map: GoogleMap) {
+        try {
+            // Customize the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            val success = map.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    this,
+                    R.raw.map_night_style
+                )
+            )
+
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.")
+            }
+        } catch (e: Resources.NotFoundException) {
+            Log.e(TAG, "Can't find style. Error: ", e)
+        }
+    }
+
     private fun createMenu() {
         addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -96,6 +120,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                     R.id.terrain_map -> {
                         map.mapType = GoogleMap.MAP_TYPE_TERRAIN
+                        true
+                    }
+                    R.id.night_map -> {
+                        setMapStyle(map)
                         true
                     }
                     else -> false

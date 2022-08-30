@@ -17,4 +17,8 @@
         android:id="@+id/terrain_map"
         app:showAsAction="never"
         android:title="@string/terrain_map" />
+    <item
+        android:id="@+id/night_map"
+        app:showAsAction="never"
+        android:title="@string/night_map" />
 </menu>
