@@ -1,12 +1,19 @@
 package dev.marawanxmamdouh.wander
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -17,6 +24,7 @@ import dev.marawanxmamdouh.wander.databinding.ActivityMapsBinding
 import java.util.*
 
 private val TAG = MapsActivity::class.java.simpleName
+private const val REQUEST_LOCATION_PERMISSION = 1
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -51,6 +59,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         setMapLongClick(map)
         setPoiClick(map)
+
+        enableMyLocation()
     }
 
     private fun setMapLongClick(map: GoogleMap) {
@@ -134,5 +144,50 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         })
+    }
+
+    /**
+     * Request location permission, so that we can get the current location.
+     */
+
+    private fun isPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun enableMyLocation() {
+        if (isPermissionGranted()) {
+            map.isMyLocationEnabled = true
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    "android.permission.ACCESS_COARSE_LOCATION",
+                    "android.permission.ACCESS_FINE_LOCATION"
+                ),
+                REQUEST_LOCATION_PERMISSION
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            if (requestCode == REQUEST_LOCATION_PERMISSION) {
+                if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    enableMyLocation()
+                }
+            }
+        } else {
+            Toast.makeText(this, "Please enable GPS", Toast.LENGTH_LONG).show()
+        }
     }
 }
