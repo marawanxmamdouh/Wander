@@ -42,6 +42,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(googleEgypt, 15f))
 
         setMapLongClick(map)
+        setPoiClick(map)
     }
 
     private fun setMapLongClick(map: GoogleMap) {
@@ -58,6 +59,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .title(getString(R.string.dropped_pin))
                     .snippet(snippet)
             )
+        }
+    }
+
+    private fun setPoiClick(map: GoogleMap) {
+        map.setOnPoiClickListener { poi ->
+            val poiMarker = map.addMarker(
+                MarkerOptions()
+                    .position(poi.latLng)
+                    .title(poi.name)
+            )
+            poiMarker?.showInfoWindow()
         }
     }
 
